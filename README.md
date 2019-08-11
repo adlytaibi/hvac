@@ -60,7 +60,7 @@ You may choose to host the code on your own webserver without Docker. Simply cop
 
 6. Or you can try out the application with randomly generated data in a demonstration mode:
 
-    ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/02_Demo_setup.png)
+    ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/03_Demo_setup.png)
 
 7. Data points will be generated for the number of months selected. The time to process depends on how powerful your server is.
 
