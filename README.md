@@ -1,9 +1,11 @@
 # HVAC Thermostat data graph
 
 This is a php-based code that provides a web-interface to graph data collected from thermostat. This works for "Radio Thermostat CT80", I don't see why it wouldn't work for any other unit. As long as the thermostat provides a RESTful API, the collection scripts can be tailored to fit your own.
-The workflow is simple, you provide the IP address or hostname of you thermostat. RESTful API calls executed by means of a cron job, the collected data is stored in a local SQLite database. The graph uses Chart.js to display the collected data read from the database.
+The workflow is simple, you provide the IP address or hostname of you thermostat. RESTful API calls executed by means of a cron job on the host server to read from the Thermostat, the collected data is stored in a local SQLite database. The graph uses Chart.js to display the collected data read from the database.
 
   ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/functional_block_diagram.svg?sanitize=true)
+
+You may choose to host the code on your own webserver without Docker. Simply copy the content of `hvac/web/src/` and ignore the rest.
 
 ## Pre-requisites
 
@@ -35,54 +37,6 @@ The workflow is simple, you provide the IP address or hostname of you thermostat
         openssl req -x509 -nodes -newkey rsa:4096 -keyout web/sslkeys/host.key -out web/sslkeys/host.pem -days 365 -subj "/C=CA/ST=Ontario/L=Ottawa/O=Home/OU=Automation/CN=web"
         ```
 
-    2. Or sign your SSL certificate with a CA:
-
-        1. Create private key, generate a certificate signing request
-
-            ```
-            openssl genrsa -out web/sslkeys/host.key 2048
-            ```
-
-        2. Create a Subject Alternate Name configuration file `san.cnf` in 'web/sslkeys'
-
-            ```
-            [req]
-            distinguished_name = req_distinguished_name
-            req_extensions = v3_req
-            prompt = no
-            default_md = sha256
-            [req_distinguished_name]
-            C = CA
-            ST = Ontario
-            L = Ottawa
-            O = Home
-            OU = Automation
-            CN = web
-            [v3_req]
-            keyUsage = keyEncipherment, dataEncipherment
-            extendedKeyUsage = serverAuth
-            subjectAltName = @alt_names
-            [alt_names]
-            DNS.1 = web
-            DNS.2 = web.acme.net
-            IP.1 = 1.2.3.4
-            ```
-
-        3. Generate a certificate signing request
-
-            ```
-            cd web/sslkeys/
-            openssl req -new -sha256 -nodes -key host.key -out web.csr -config san.cnf
-            ```
-
-        4. In your CA portal use the `web.csr` output and the following SAN entry to sign the certificate, you should get a `certnew.pem` that can be saved as `host.pem`
-
-            ```
-            san:dns=web.acme.net&ipaddress=1.2.3.4
-            ```
-
-        5. Copy your `host.pem` certificate files to `web/sslkeys`
-
 3. docker-compose
 
     ```
@@ -112,29 +66,31 @@ The workflow is simple, you provide the IP address or hostname of you thermostat
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/04_Demo_progress.gif)
 
-8. `Monthly` averages are calculated for inside/outside temperatures and humidity
+8. `Monthly view` averages are calculated for inside/outside temperatures and humidity
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/05_Demo_chart_monthly.png)
 
-9. Selecting a month will take you to a `weekly` view with average values per week
+9. Selecting a month will take you to a `Weekly view` with average values per week
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/06_Demo_chart_weekly.png)
 
-10. Selecting a week will take you to a `daily` view with average values for per day
+10. Selecting a week will take you to a `Daily view` with average values for per day
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/07_Demo_chart_daily.png)
 
-11. Selecting a day will take you to an `hourly` view which represents raw values as they were collected as well as showing the heating/cooling runtime of the HVAC system
+11. Selecting a day will take you to an `Hourly view` which represents raw values as they were collected as well as showing the heating/cooling runtime of the HVAC system
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/08_Demo_chart_hourly.png)
 
-12. At any time you can jump to today's view with the home button.
+12. At any time you can jump to `Today's view` with the home button. You can quickly jump to next/previous days
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/09_Demo_chart_today.png)
 
 13. Finally, the demonstration data can be deleted when you're done staring at it. This will bring you back to the setup view as in (5).
 
     ![](https://raw.githubusercontent.com/adlytaibi/ss/master/hvac/10_Demo_chart_delete.png)
+
+14. Cron file is conveniently provided here `hvac/web/cron/hvac` to run from the Docker host. Drop the Docker section of the command if you're running without Docker.
 
 ## Further reading
 * [Docker Compose](https://docs.docker.com/compose/)
