@@ -1,0 +1,23 @@
+body {
+  background-color: #dfdfec;
+}
+.card {
+  margin: 0 auto;
+  width: 50rem;
+  margin-top: 1rem;
+}
+.outsideWrapper {
+  border:0px solid red;
+  margin: 0 auto;
+}
+.insideWrapper {
+  width:99%;
+  height:99%;
+  position:relative;
+}
+.chartWrapper {
+  height: 91vh;
+}
+.btn-link, .btn-link:link, .btn-link:visited, .btn-link:hover, .btn-link:active {
+  color: #fff;
+}
