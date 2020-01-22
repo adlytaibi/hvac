@@ -18,11 +18,6 @@
     <?php if (empty($msg)) { ?>
       <div class='outsideWrapper'>
         <div class='insideWrapper'>
-          <div class='row justify-content-md-center'>
-            <div class='col-sm-12 p-3 chartWrapper'>
-              <canvas id='chart'></canvas>
-            </div>
-          </div> <!-- row chart -->
           <form id=cluster action=. method=post>
               <div class='row justify-content-md-center'>
                 <div class='col-sm-<?php print((isset($demomode))?11:12); ?> p-3'>
@@ -39,9 +34,14 @@
                   <input class='btn btn-primary p-1 m-1' type='button' id='dayplus' value='dayplus'>
                   <input type="hidden" id="xdayplus" value="" />
                 </div>
-                <?php if (isset($demomode)) { print(cleardemo()); } ?>
+                <?php if (isset($demomode)) { print(cleardemo($l,$lang)); } ?>
               </div> <!-- row button -->
           </form>
+          <div class='row justify-content-md-center'>
+            <div class='col-sm-12 p-3 chartWrapper'>
+              <canvas id='chart'></canvas>
+            </div>
+          </div> <!-- row chart -->
         </div> <!-- insideWrapper -->
       </div> <!-- outsideWrapper -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
@@ -55,7 +55,7 @@
           <div class="accordion" id="initialview">
             <div class='card text-center text-white w-75 bg-dark'>
               <div class='card-header' id='prereq'>
-                <button class="btn btn-link text-uppercase" type="button" data-toggle="collapse" data-target="#colprereq" aria-expanded="true" aria-controls="colprereq">Pre-requisites checks</button>
+                <button class="btn btn-link text-uppercase" type="button" data-toggle="collapse" data-target="#colprereq" aria-expanded="true" aria-controls="colprereq"><?php print($l[$lang][3]); ?></button>
               </div>
               <div id="colprereq" class="collapse show" aria-labelledby="prereq" data-parent="#initialview">
                 <div class='card-body'>
@@ -65,7 +65,7 @@
             </div> <!-- card -->
             <div class='card text-center text-white w-75 bg-dark'>
               <div class='card-header' id='setup'>
-                <button class="btn btn-link text-uppercase" type="button" data-toggle="collapse" data-target="#colsetup" aria-expanded="false" aria-controls="colsetup">Setup</button>
+                <button class="btn btn-link text-uppercase" type="button" data-toggle="collapse" data-target="#colsetup" aria-expanded="false" aria-controls="colsetup"><?php print($l[$lang][4]); ?></button>
               </div>
               <div id="colsetup" class="collapse show" aria-labelledby="setup" data-parent="#initialview">
                 <div class='card-body'>

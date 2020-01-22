@@ -25,8 +25,11 @@ $(document).on('click', 'input:button[id^="prevd"]', function (event) {
   $('#dayminus').hide();
   $('#dayplus').hide();
   mechart('daily', 'YYYY-M-D', document.getElementById('xprevd').value);
+  mechart('daily', 'YYYY-M-D', moment(dtoday)._d);
 });
 $(document).on('click', 'input:button[id^="dayminus"]', function (event) {
+  dcursor = moment(prevday)._d;
+  document.getElementById('xprevd').value=dcursor.toLocaleDateString();
   prevday = moment(prevday).subtract(1,'days')._d;
   document.getElementById('dayminus').value=prevday.toLocaleDateString();
   document.getElementById('xdayminus').value=prevday;
@@ -49,6 +52,8 @@ $(document).on('click', 'button:button[id^="today"]', function (event) {
   mechart('hourly', 'HH:mm', dtoday);
 });
 $(document).on('click', 'input:button[id^="dayplus"]', function (event) {
+  dcursor = moment(nextday)._d;
+  document.getElementById('xprevd').value=dcursor.toLocaleDateString();
   nextday = moment(nextday).add(1,'days')._d;
   document.getElementById('dayplus').value=nextday.toLocaleDateString();
   document.getElementById('xdayplus').value=nextday;

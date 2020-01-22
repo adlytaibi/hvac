@@ -1,4 +1,5 @@
 <?php
+include_once('languages.php');
 $msg = '';
 $prereq = '';
 $donotpass = '';
@@ -20,34 +21,34 @@ function alertmsg($msg,$type) {
   return "<div class='row justify-content-md-center'><div class='alert alert-$colour' role='alert'>$msg.</div></div>";
 }
 
-function prechecks() {
+function prechecks($l,$lang) {
   $pass = '';
   $notpass = '';
   # Filesystem check
   $user = exec('whoami');
   if (is_writable(dirname(__FILE__).'/db')) {
-    $pass .= alertmsg(dirname(__FILE__)."/db is writable by user '$user'",'ok');
+    $pass .= alertmsg(dirname(__FILE__)."/db ".$l[$lang][6][0]." '$user'",'ok');
   } else {
-    $notpass .= alertmsg(dirname(__FILE__)."/db is not writable by '$user'",'bad');
+    $notpass .= alertmsg(dirname(__FILE__)."/db ".$l[$lang][6][1]." '$user'",'bad');
   }
   # Modules check
   $sqlite = extension_loaded('sqlite3');
   if ($sqlite) {
-    $pass .= alertmsg('PHP module sqlite3 is available','ok');
+    $pass .= alertmsg($l[$lang][7][0],'ok');
   } else {
-    $notpass .= alertmsg('PHP module sqlite3 is not installed or loaded','bad');
+    $notpass .= alertmsg($l[$lang][7][1],'bad');
   }
   $curl = extension_loaded('curl');
   if ($curl) {
-    $pass .= alertmsg('PHP module curl is available','ok');
+    $pass .= alertmsg($l[$lang][8][0],'ok');
   } else {
-    $notpass .= alertmsg('PHP module curl is not installed or loaded','bad');
+    $notpass .= alertmsg($l[$lang][8][1],'bad');
   }
   $simplexml = extension_loaded('simplexml');
   if ($simplexml) {
-    $pass .= alertmsg('PHP module simplexml is available','ok');
+    $pass .= alertmsg($l[$lang][9][0],'ok');
   } else {
-    $notpass .= alertmsg('PHP module simplexml is not installed or loaded','bad');
+    $notpass .= alertmsg($l[$lang][9][1],'bad');
   }
   return array($pass,$notpass);
 }
@@ -68,7 +69,7 @@ function apicall($ip, $uri) {
   return array($output,$status);
 }
 
-function thermoform() {
+function thermoform($l,$lang) {
   $form = '<!-- Thermostat form -->
           <button type="button" name="btn" class="btn btn-primary btn-md" data-toggle="modal" data-target="#setting"><i class="fa fa-cog"></i></button>
 <form action=. method=post>
@@ -76,17 +77,17 @@ function thermoform() {
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="Setting">Thermostat</h4>
+          <h4 class="modal-title" id="Setting">'.$l[$lang][11][0].'</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true"><i class="fa fa-close"></i></span>
           </button>
         </div>
         <div class="modal-body">
-          <input name="thermostat" class="form-control input-sm chat-input" value="" placeholder="thermostat hostname/IP address" pattern="^((([a-zA-Z]|[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z]|[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9])|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$" required />
+          <input name="thermostat" class="form-control input-sm chat-input" value="" placeholder="'.$l[$lang][11][1].'" pattern="^((([a-zA-Z]|[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z]|[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9])|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$" required />
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" name="btn" class="btn btn-primary" value="save">Save changes</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">'.$l[$lang][11][2].'</button>
+          <button type="submit" name="btn" class="btn btn-primary" value="save">'.$l[$lang][11][3].'</button>
         </div>
       </div>
     </div>
@@ -95,13 +96,13 @@ function thermoform() {
   return $form;
 }
 
-list($prereq, $donotpass) = prechecks();
+list($prereq, $donotpass) = prechecks($l,$lang);
 $msg = $donotpass;
 
 if (!$donotpass) {
   if (!file_exists($config)) {
     if (!file_exists($demo)) {
-      $messageform = '<div class="row justify-content-md-center"><div class="alert alert-primary" role="alert">Setup thermostat\'s IP/hostname.'. thermoform() .'</div></div>';
+      $messageform = '<div class="row justify-content-md-center"><div class="alert alert-primary" role="alert">'.$l[$lang][10]. thermoform($l,$lang) .'</div></div>';
       if ($_POST) {
         if ($_POST['btn']=='save') {
           $ipname = $_POST['thermostat'];
@@ -110,15 +111,15 @@ if (!$donotpass) {
             $jout = json_decode($output);
             if (is_object($jout)) {
               if (property_exists($jout, 'model')) {
-                $ipconf = fopen($config, "w") or print "<div class='alert alert-warning' role='alert'>Error: writing configuration file.</div>";
+                $ipconf = fopen($config, "w") or print "<div class='alert alert-warning' role='alert'>".$l[$lang][12]."</div>";
                 fwrite($ipconf, "<?php \$thermostat = '${ipname}'; ?>");
                 fclose($ipconf);
                 header('location: .');
               } else {
-                $msg = $messageform."<div class='row justify-content-md-center'><div class='alert alert-danger' role='alert'>Can not find thermostat's model from API.</div></div>";
+                $msg = $messageform."<div class='row justify-content-md-center'><div class='alert alert-danger' role='alert'>".$l[$lang][13]."</div></div>";
               }
             } else {
-              $msg = $messageform."<div class='row justify-content-md-center'><div class='alert alert-danger' role='alert'>API not available.</div></div>";
+              $msg = $messageform."<div class='row justify-content-md-center'><div class='alert alert-danger' role='alert'>".$l[$lang][14]."</div></div>";
             }
           } else {
             $msg = $messageform."<div class='row justify-content-md-center'><div class='alert alert-danger' role='alert'>curl error: $status</div></div>";
@@ -133,7 +134,7 @@ if (!$donotpass) {
   }
 }
 
-function demoform() {
+function demoform($l,$lang) {
   $form = '<!-- Demonstration form -->
           <button type="button" name="btn" class="btn btn-primary btn-md" data-toggle="modal" data-target="#demo"><i class="fa fa-cog"></i></button>
 <form action=. method=post>
@@ -141,18 +142,18 @@ function demoform() {
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="Setting">Random data</h4>
+          <h4 class="modal-title" id="Setting">'.$l[$lang][16][0].'</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true"><i class="fa fa-close"></i></span>
           </button>
         </div>
         <div class="modal-body">
-          <label for="months">Number of months (12 months max)</label>
+          <label for="months">'.$l[$lang][16][1].'</label>
           <input name="months" id="months" type="number" value="6" min="1" max="12">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button id="demobtn" type="submit" name="btn" class="btn btn-primary" value="demo">Enable demo</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">'.$l[$lang][16][2].'</button>
+          <button id="demobtn" type="submit" name="btn" class="btn btn-primary" value="demo">'.$l[$lang][16][3].'</button>
         </div>
       </div>
     </div>
@@ -161,13 +162,13 @@ function demoform() {
   return $form;
 }
 
-function demoload() {
+function demoload($l,$lang) {
   $hcode = '
   <div class="modal fade" id="demoload" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="Setting">Generating data</h4>
+          <h4 class="modal-title" id="Setting">'.$l[$lang][17][0].'</h4>
         </div>
         <div class="modal-body">
           <embed id="embed" src="" style="display:none;" />
@@ -183,7 +184,7 @@ function demoload() {
   return $hcode;
 }
 
-function cleardemo() {
+function cleardemo($l,$lang) {
   $clrdemo = "
 <div class='col-sm-1'>
 <form action=. method=post>
@@ -193,14 +194,14 @@ function cleardemo() {
     <div class='modal-dialog modal-sm'>
       <div class='modal-content'>
         <div class='modal-header'>
-          <h4 class='modal-title' id='Setting'>Confirm data deletion!</h4>
+          <h4 class='modal-title' id='Setting'>".$l[$lang][18][0]."</h4>
           <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
             <span aria-hidden='true'><i class='fa fa-close'></i></span>
           </button>
         </div>
         <div class='modal-footer'>
-          <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
-          <button id='democlrbtn' type='submit' name='btn' class='btn btn-primary' value='clrdemo'>Delete Demo</button>
+          <button type='button' class='btn btn-default' data-dismiss='modal'>".$l[$lang][18][1]."</button>
+          <button id='democlrbtn' type='submit' name='btn' class='btn btn-primary' value='clrdemo'>".$l[$lang][18][2]."</button>
         </div>
       </div>
     </div>
@@ -214,17 +215,17 @@ function cleardemo() {
 if (!$donotpass) {
   if (!file_exists($demo)) {
     if (!file_exists($config)) {
-      $messageform = '<div class="row justify-content-md-center"><div class="alert alert-primary" role="alert">Or run in demo mode which will load random data.'. demoform() .'</div></div>';
+      $messageform = '<div class="row justify-content-md-center"><div class="alert alert-primary" role="alert">'.$l[$lang][15]. demoform($l,$lang) .'</div></div>';
       if ($_POST) {
         if (isset($_POST['btn'])) {
           if ($_POST['btn']=='demo') {
             $months = $_POST['months'];
-            $democonf = fopen($demo, "w") or print "<div class='alert alert-warning' role='alert'>Error: writing configuration file.</div>";
+            $democonf = fopen($demo, "w") or print "<div class='alert alert-warning' role='alert'>".$l[$lang][12]."</div>";
             fwrite($democonf, "<?php \$demomode = '${months}'; ?>");
             fclose($democonf);
             include_once($demo);
-            print(demoload());
-            $msg = "<div class='alert alert-primary' role='alert'>Please wait...</div>";
+            print(demoload($l,$lang));
+            $msg = "<div class='alert alert-primary' role='alert'>".$l[$lang][19]."</div>";
           }
         }
       } else {

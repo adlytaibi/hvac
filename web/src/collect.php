@@ -26,7 +26,7 @@ if (isset($thermostat)) {
         preg_match('/Current Conditions:/', $xml->entry[$i]->title,$matches);
         if (sizeof($matches)) {
           $currcond = $xml->entry[$i]->title;
-          preg_match_all('!\d+.\d+!', $currcond, $matches);
+          preg_match_all('!\-?\d+.\d+!', $currcond, $matches);
           if (sizeof($matches)) { $otemp = $matches[0][0]; }
           break;
         }

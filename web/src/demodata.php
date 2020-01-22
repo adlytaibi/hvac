@@ -6,6 +6,11 @@ $ts1 = time();
 $ts0 = time() - $demomode * 2592000;
 $ts = $ts0;
 $thour = $ts;
+$tday = $ts;
+$theath = 0;
+$theatm = 0;
+$tcoolh = 0;
+$tcoolm = 0;
 
 function trand($ts) {
   # Rabbit out of the hat demo data, don't ask, just go with it
@@ -56,12 +61,14 @@ function rrand($mydb, $ts) {
   $tadj = 0;
   $sql = "select ts, otemp-(temp-32)*5/9 as delta from thermostat where ts>=$ts-3600";
   $delta = dbqprev($mydb, $sql, ['delta']);
-  $d1 = $delta[0]['delta'];
-  $d2 = $delta[1]['delta'];
-  if (abs($d1)-$tdfact>0 && $tdhfact) {
-    $tadj = intval(10*(abs($d1)-$tdfact));
-    if (abs($d2-$d1)-$tdfact>0) {
-      $tadj += intval(10*(abs($d2-$d1)-$tdfact));
+  if (array_key_exists(1,$delta)) {
+    $d1 = $delta[0]['delta'];
+    $d2 = $delta[1]['delta'];
+    if (abs($d1)-$tdfact>0 && $tdhfact) {
+      $tadj = intval(10*(abs($d1)-$tdfact));
+      if (abs($d2-$d1)-$tdfact>0) {
+        $tadj += intval(10*(abs($d2-$d1)-$tdfact));
+      }
     }
   }
   if ($month>3 && $month<9) {
@@ -87,9 +94,20 @@ while ($ts<$ts1) {
   $sql = "insert into thermostat (ts, temp, otemp, humidity, tmode, fmode, override, hold, t_heat, t_cool, program_mode, tstate, t_type_post) values ($ts, $temp, $otemp, $humidity, $tmode, $fmode, $override, $hold, $t_heat, $t_cool, $program_mode, $tstate, $t_type_post)";
   ($debug)?print($sql."\n"):dbinsert($mydb,$sql);
   $ts += 1800; # Demo data doesn't need more increments
-  # Hourly runtime
+  # Hourly runtime saved in cumulative way
+  if ($ts-$tday == 86400) {
+    $tday = $ts;
+    $theath = 0;
+    $theatm = 0;
+    $tcoolh = 0;
+    $tcoolm = 0;
+  }
+  list($thh, $thm, $tch, $tcm) = rrand($mydb, $ts);
+  $theath += $thh;
+  $theatm += $thm;
+  $tcoolh += $tch;
+  $tcoolm += $tcm;
   if ($ts-$thour == 3600) {
-    list($theath, $theatm, $tcoolh, $tcoolm) = rrand($mydb, $ts);
     $sql = "insert into runtime (ts, theath, theatm, tcoolh, tcoolm) values ($ts, $theath, $theatm, $tcoolh, $tcoolm)";
     ($debug)?print($sql."\n"):dbinsert($mydb,$sql);
     $thour = $ts;
@@ -97,7 +115,7 @@ while ($ts<$ts1) {
   if (!$debug) {
     $pct = number_format( ($ts - $ts0) / ($ts1 - $ts0) * 100, 0);
     $btndis = ($pct != 100)?'true':'false';
-    $btntxt = ($pct != 100)?"$pct%":'Done';
+    $btntxt = ($pct != 100)?"$pct%":$l[$lang][17][1];
     print('<script>parent.$("#pbar").css("width",'. $pct .'+ "%"); parent.$("#demodone").html("'.$btntxt.'"); parent.$("#demodone").prop("disabled", '.$btndis.');</script>');
     ob_flush();
     flush();

@@ -32,5 +32,5 @@ if ($freq=='hourly') {
   $dday = date('Y-m-d',strtotime($dday));
   $sql = "select humidity, temp, otemp, tstate, t_heat, t_cool, theath, theatm, tcoolh, tcoolm, strftime('%Y-%m-%d %H:%M:%S',datetime(thermostat.ts, 'unixepoch', 'localtime') ) as ts, strftime('%Y-%m-%d',datetime(thermostat.ts, 'unixepoch', 'localtime')) rday, strftime('%Y-%m-%d %H',datetime(thermostat.ts, 'unixepoch', 'localtime')) rhour, strftime('%Y-%m-%d %H',datetime(runtime.ts, 'unixepoch', 'localtime')) rhourrt from thermostat left join runtime on (rhour = rhourrt) where rday='${dday}' group by thermostat.ts";
 }
-print dbselect($mydb, $sql);
+print dbselect($mydb, $sql, $l, $lang);
 ?>

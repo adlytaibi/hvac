@@ -1,5 +1,6 @@
 <?php
 Header("content-type: application/x-javascript");
+include_once('languages.php');
 ?>
 var cchart=undefined;
 function mechart(title, fmt, dt) {
@@ -32,17 +33,17 @@ function mechart(title, fmt, dt) {
     var labels = [], datatemp=[], dataotem=[]; datahumi=[]; datarunt=[];
     results.forEach(function(e) {
       labels.push(e.date);
-      datatemp.push(parseFloat(e.Temperature));
-      dataotem.push(parseFloat(e.Outside));
-      datahumi.push(parseFloat(e.Humidity));
-      datarunt.push(parseFloat(e.Runtime));
+      datatemp.push(parseFloat(e.<?php print($l[$lang][1][0]); ?>));
+      dataotem.push(parseFloat(e.<?php print($l[$lang][1][1]); ?>));
+      datahumi.push(parseFloat(e.<?php print($l[$lang][1][2]); ?>));
+      datarunt.push(parseFloat(e.<?php print($l[$lang][1][3]); ?>));
     });
     var config = {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-           label: 'Temperature',
+           label: '<?php print($l[$lang][1][0]); ?>',
            fill: false,
            type: 'line',
            data: datatemp,
@@ -50,7 +51,7 @@ function mechart(title, fmt, dt) {
            backgroundColor: 'rgb(54, 162, 235)',
            yAxisID: "celcius",
         }, {
-           label: 'Outside',
+           label: '<?php print($l[$lang][1][1]); ?>',
            fill: false,
            type: 'line',
            data: dataotem,
@@ -58,7 +59,7 @@ function mechart(title, fmt, dt) {
            backgroundColor: 'rgb(50, 205, 50)',
            yAxisID: "celcius",
         }, {
-           label: 'Humidity',
+           label: '<?php print($l[$lang][1][2]); ?>',
            fill: false,
            type: 'line',
            data: datahumi,
@@ -66,7 +67,7 @@ function mechart(title, fmt, dt) {
            backgroundColor: 'rgb(255, 159, 64)',
            yAxisID: "percent",
         }, {
-           label: 'Runtime',
+           label: '<?php print($l[$lang][1][3]); ?>',
            fill: false,
            type: 'bar',
            data: datarunt,
@@ -108,13 +109,13 @@ function mechart(title, fmt, dt) {
              yAxes: [{
                  type: "linear",
                  display: true,
-                 scaleLabel: { display: true, labelString: "Celcius" },
+                 scaleLabel: { display: true, labelString: "<?php print($l[$lang][2][0]); ?>" },
                  position: "left",
                  id: "celcius",
              }, {
                  type: "linear",
                  display: true,
-                 scaleLabel: { display: true, labelString: "% moisture" },
+                 scaleLabel: { display: true, labelString: "<?php print($l[$lang][2][1]); ?>" },
                  position: "right",
                  id: "percent",
                  gridLines: {
@@ -123,7 +124,7 @@ function mechart(title, fmt, dt) {
              }, {
                  type: "linear",
                  display: true,
-                 scaleLabel: { display: true, labelString: "minutes" },
+                 scaleLabel: { display: true, labelString: "<?php print($l[$lang][2][2]); ?>" },
                  position: "right",
                  id: "minutes",
                  gridLines: {

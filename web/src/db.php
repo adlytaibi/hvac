@@ -1,5 +1,8 @@
 <?php
 include_once('utils.php');
+date_default_timezone_set('America/Toronto');
+$mydb = dirname(__FILE__).'/db/hvac.db';
+$config = dirname(__FILE__).'/db/config.php';
 if (extension_loaded('sqlite3')) {
   class MyDB extends SQLite3 {
     private $mydb;
@@ -9,6 +12,7 @@ if (extension_loaded('sqlite3')) {
   }
 
   if (!file_exists($mydb)) {
+    include_once('languages.php');
     if (is_writable(dirname(__FILE__).'/db')) {
       $db = new MyDB($mydb);
       if(!$db) {
@@ -22,7 +26,7 @@ if (extension_loaded('sqlite3')) {
       }
       $db->close();
     } else {
-      $msg = '<div class="alert alert-danger" role="alert">Directory '.dirname(__FILE__).'/db is not writable.</br>Make sure that user "'. exec('whoami') .'" has write permission.</div>';
+      $msg = '<div class="alert alert-danger" role="alert">'.$l[$lang][5][0].' '.dirname(__FILE__).'/db '.$l[$lang][5][1].' "'. exec('whoami') .'" '.$l[$lang][5][2].'</div>';
     }
   }
 
@@ -39,7 +43,8 @@ if (extension_loaded('sqlite3')) {
     return number_format(($tempf - 32)*5/9,2);
   }
   
-  function dbselect($mydb, $sql) {
+  function dbselect($mydb, $sql, $l, $lang) {
+    include_once('languages.php');
     $json = [];
     $data = array();
     $db = new MyDB($mydb);
@@ -49,25 +54,26 @@ if (extension_loaded('sqlite3')) {
     } else {
       $prevcool = 0;
       $countcool = 0;
+      $prevheat = 0;
       $countheat = 0;
       while($row = $ret->fetchArray(SQLITE3_ASSOC) ) {
         $data = array("date" => $row['ts']);
-        $data['Temperature'] = FtoC($row['temp']);
-        $data['Outside'] = number_format($row['otemp'],2);
-        $data['Humidity'] = number_format($row['humidity'],2);
+        $data[$l[$lang][1][0]] = FtoC($row['temp']);
+        $data[$l[$lang][1][1]] = number_format($row['otemp'],2);
+        $data[$l[$lang][1][2]] = number_format($row['humidity'],2);
         if ( array_key_exists('tstate',$row) ) {
           if ($row['tstate'] == 1) { $data['Heat'] = FtoC($row['t_heat']); }
           if ($row['tstate'] == 2) { $data['Cool'] = FtoC($row['t_cool']); }
         }
         if ( array_key_exists('tcoolh',$row) && array_key_exists('tcoolm',$row) ) {
           $countcool = $row['tcoolh'] * 60 + $row['tcoolm'];
-          $data['Runtime'] = ($countcool>0)?$countcool - $prevcool:0;
+          $data[$l[$lang][1][3]] = ($countcool>0)?$countcool - $prevcool:0;
           $prevcool = $countcool;
         }
         if ( array_key_exists('theath',$row) && array_key_exists('theatm',$row) ) {
           $countheat = $row['theath'] * 60 + $row['theatm'];
-          $data['Runtime'] += ($countheat>0)?$countheat - $prevcool:0;
-          $prevcool = $countheat;
+          $data[$l[$lang][1][3]] = ($countheat>0)?$countheat - $prevheat:0;
+          $prevheat = $countheat;
         }
         array_push($json, $data);
       }
